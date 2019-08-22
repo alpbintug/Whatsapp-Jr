@@ -1,4 +1,4 @@
-﻿using FireSharp.Config;
+using FireSharp.Config;
 using FireSharp.Interfaces;
 using FireSharp.Response;
 using System;
@@ -63,40 +63,43 @@ namespace Staj_Projesi
         private void ChatPage_Load(object sender, System.EventArgs e)
         {
             client = new FireSharp.FirebaseClient(config);
+
         }
 
 
         private async void TimerToRefresh_Tick(object sender, System.EventArgs e)
         {
             FirebaseResponse response = await client.GetTaskAsync("User/" + CurrentUser.UserName);
-            if (CurrentUser.Messages.Count != response.ResultAs<User>().Messages.Count)
+            User responseAsUser = response.ResultAs<User>();
+            if (CurrentUser.Messages.Count < responseAsUser.Messages.Count)
             {
-                CurrentUser.Messages = response.ResultAs<User>().Messages;
-                FirebaseResponse response1 = await client.GetTaskAsync("User/" + TargetUser.UserName);
-                if (TargetUser != response1.ResultAs<User>())
+                //CurrentUser.Messages = response.ResultAs<User>().Messages;
+                for (int i = CurrentUser.Messages.Count; i < responseAsUser.Messages.Count; i++)
+                {
+                    CurrentUser.Messages.Add(responseAsUser.Messages[i]);
+                }
+                //lstChat.Items.Clear();
 
-                    //lstChat.Items.Clear();
-
-                    foreach (var item in CurrentUser.Messages)
+                foreach (var item in CurrentUser.Messages)
+                {
+                    if (item.Sender == CurrentUser.UserName && item.Reciever == TargetUser.UserName && !lstChat.Items.Contains("You: " + item.Text))
                     {
-                        if (item.Sender == CurrentUser.UserName && item.Reciever == TargetUser.UserName && !lstChat.Items.Contains("You: " + item.Text))
-                        {
-                            lstChat.Items.Add(item.Time + " - You: " + item.Text);
-                        }
-                        else if (item.Sender == TargetUser.UserName && item.Reciever == CurrentUser.UserName && !lstChat.Items.Contains(item.Sender + ": " + item.Text))
-                        {
-                            lstChat.Items.Add(item.Time + " - " + item.Sender + ": " + item.Text);
-                        }
-
+                        lstChat.Items.Add(item.Time + " - You: " + item.Text);
                     }
+                    else if (item.Sender == TargetUser.UserName && item.Reciever == CurrentUser.UserName && !lstChat.Items.Contains(item.Sender + ": " + item.Text))
+                    {
+                        lstChat.Items.Add(item.Time + " - " + item.Sender + ": " + item.Text);
+                    }
+                }
             }
         }
 
-        private void BtnQuit_Click(object sender, System.EventArgs e)
+        private async void BtnQuit_Click(object sender, System.EventArgs e)
         {
             this.timerToRefresh.Stop();
             this.timerToRefresh.Dispose();
             mainPage.CurrentUser = CurrentUser;
+            await SaveCurrentUser();
             this.Hide();
         }
 
