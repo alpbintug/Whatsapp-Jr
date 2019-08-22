@@ -1,4 +1,4 @@
-﻿using FireSharp.Config;
+using FireSharp.Config;
 using FireSharp.Interfaces;
 using FireSharp.Response;
 using System;
@@ -19,6 +19,7 @@ namespace Staj_Projesi
         public LoginPage()
         {
             InitializeComponent();
+            txtUserName.Select();
         }
 
         private async void BtnLogIn_Click(object sender, EventArgs e)
@@ -62,9 +63,28 @@ namespace Staj_Projesi
                 mainPage.lstContacts.Items.Clear();
                 foreach (var item in getUser.Contacts)
                 {
-                    mainPage.lstContacts.Items.Add(item);
+                    int unread = mainPage.CurrentUser.findUnreadMessages(item);
+                    if (unread > 0)
+                    {
+                        mainPage.lstContacts.Items.Add(item + "(" + unread + " Unread Messsages)");
+
+                    }
+                    else
+                        mainPage.lstContacts.Items.Add(item);
                 }
                 mainPage.login = this;
+                int unreadMessages = 0;
+                int unreadMessageRequests = 0;
+                foreach (var item in mainPage.CurrentUser.Messages)
+                {
+                    if (item.Reciever == mainPage.CurrentUser.UserName && item.isSeen == false && mainPage.CurrentUser.Contacts.Contains(item.Sender))
+                        unreadMessages++;
+                    else if (item.Reciever == mainPage.CurrentUser.UserName && item.isSeen == false)
+                        unreadMessageRequests++;
+                }
+                mainPage.unreadMessages = unreadMessages;
+                mainPage.unreadMessageRequests = unreadMessageRequests;
+                mainPage.updateUnreadMessageInfo();
                 mainPage.Show();
             }
         }
@@ -77,6 +97,12 @@ namespace Staj_Projesi
         private void LoginPage_Load(object sender, EventArgs e)
         {
             client = new FireSharp.FirebaseClient(config);
+            Console.WriteLine(client);
+            if (client == null)
+            {
+                MessageBox.Show("Cannot connect to server.");
+                this.Close();
+            }
 
         }
 
@@ -159,9 +185,16 @@ namespace Staj_Projesi
 
         }
 
-
-
-
-
+        private void TabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tabControl1.SelectedIndex == 0)
+            {
+                txtUserName.Select();
+            }
+            else
+            {
+                txtAddUserName.Select();
+            }
+        }
     }
 }
