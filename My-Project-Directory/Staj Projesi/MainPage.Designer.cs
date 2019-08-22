@@ -1,4 +1,4 @@
-﻿namespace Staj_Projesi
+namespace Staj_Projesi
 {
     partial class MainPage
     {
@@ -32,7 +32,6 @@
             this.Contacts = new System.Windows.Forms.TabPage();
             this.btnLogOut = new System.Windows.Forms.Button();
             this.btnStartChat = new System.Windows.Forms.Button();
-            this.btnRefreshContacts = new System.Windows.Forms.Button();
             this.lstContacts = new System.Windows.Forms.ListBox();
             this.Search = new System.Windows.Forms.TabPage();
             this.btnAddContacts = new System.Windows.Forms.Button();
@@ -40,6 +39,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.btnSearch = new System.Windows.Forms.Button();
             this.txtSearchUserName = new System.Windows.Forms.TextBox();
+            this.lblUnreadMessages = new System.Windows.Forms.Label();
             this.tabMenu.SuspendLayout();
             this.Contacts.SuspendLayout();
             this.Search.SuspendLayout();
@@ -49,10 +49,10 @@
             // 
             this.tabMenu.Controls.Add(this.Contacts);
             this.tabMenu.Controls.Add(this.Search);
-            this.tabMenu.Location = new System.Drawing.Point(12, 12);
+            this.tabMenu.Location = new System.Drawing.Point(12, 29);
             this.tabMenu.Name = "tabMenu";
             this.tabMenu.SelectedIndex = 0;
-            this.tabMenu.Size = new System.Drawing.Size(577, 426);
+            this.tabMenu.Size = new System.Drawing.Size(577, 459);
             this.tabMenu.TabIndex = 0;
             this.tabMenu.TabStop = false;
             // 
@@ -61,12 +61,11 @@
             this.Contacts.BackColor = System.Drawing.Color.RoyalBlue;
             this.Contacts.Controls.Add(this.btnLogOut);
             this.Contacts.Controls.Add(this.btnStartChat);
-            this.Contacts.Controls.Add(this.btnRefreshContacts);
             this.Contacts.Controls.Add(this.lstContacts);
             this.Contacts.Location = new System.Drawing.Point(4, 25);
             this.Contacts.Name = "Contacts";
             this.Contacts.Padding = new System.Windows.Forms.Padding(3);
-            this.Contacts.Size = new System.Drawing.Size(569, 397);
+            this.Contacts.Size = new System.Drawing.Size(569, 430);
             this.Contacts.TabIndex = 1;
             this.Contacts.Text = "Contacts";
             // 
@@ -74,9 +73,9 @@
             // 
             this.btnLogOut.BackColor = System.Drawing.Color.DarkBlue;
             this.btnLogOut.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.btnLogOut.Location = new System.Drawing.Point(453, 349);
+            this.btnLogOut.Location = new System.Drawing.Point(453, 361);
             this.btnLogOut.Name = "btnLogOut";
-            this.btnLogOut.Size = new System.Drawing.Size(110, 42);
+            this.btnLogOut.Size = new System.Drawing.Size(110, 63);
             this.btnLogOut.TabIndex = 3;
             this.btnLogOut.Text = "Log out";
             this.btnLogOut.UseVisualStyleBackColor = false;
@@ -86,25 +85,13 @@
             // 
             this.btnStartChat.BackColor = System.Drawing.Color.DarkBlue;
             this.btnStartChat.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.btnStartChat.Location = new System.Drawing.Point(453, 61);
+            this.btnStartChat.Location = new System.Drawing.Point(453, 6);
             this.btnStartChat.Name = "btnStartChat";
-            this.btnStartChat.Size = new System.Drawing.Size(110, 40);
+            this.btnStartChat.Size = new System.Drawing.Size(110, 63);
             this.btnStartChat.TabIndex = 2;
             this.btnStartChat.Text = "Start Chat";
             this.btnStartChat.UseVisualStyleBackColor = false;
             this.btnStartChat.Click += new System.EventHandler(this.BtnStartChat_Click);
-            // 
-            // btnRefreshContacts
-            // 
-            this.btnRefreshContacts.BackColor = System.Drawing.Color.DarkBlue;
-            this.btnRefreshContacts.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.btnRefreshContacts.Location = new System.Drawing.Point(453, 6);
-            this.btnRefreshContacts.Name = "btnRefreshContacts";
-            this.btnRefreshContacts.Size = new System.Drawing.Size(110, 49);
-            this.btnRefreshContacts.TabIndex = 1;
-            this.btnRefreshContacts.Text = "Refresh";
-            this.btnRefreshContacts.UseVisualStyleBackColor = false;
-            this.btnRefreshContacts.Click += new System.EventHandler(this.BtnRefreshContacts_Click);
             // 
             // lstContacts
             // 
@@ -112,7 +99,7 @@
             this.lstContacts.ItemHeight = 16;
             this.lstContacts.Location = new System.Drawing.Point(3, 4);
             this.lstContacts.Name = "lstContacts";
-            this.lstContacts.Size = new System.Drawing.Size(444, 388);
+            this.lstContacts.Size = new System.Drawing.Size(444, 420);
             this.lstContacts.TabIndex = 0;
             // 
             // Search
@@ -180,13 +167,24 @@
             this.txtSearchUserName.Size = new System.Drawing.Size(191, 22);
             this.txtSearchUserName.TabIndex = 0;
             // 
+            // lblUnreadMessages
+            // 
+            this.lblUnreadMessages.AutoSize = true;
+            this.lblUnreadMessages.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.lblUnreadMessages.Location = new System.Drawing.Point(16, 9);
+            this.lblUnreadMessages.Name = "lblUnreadMessages";
+            this.lblUnreadMessages.Size = new System.Drawing.Size(58, 17);
+            this.lblUnreadMessages.TabIndex = 1;
+            this.lblUnreadMessages.Text = "Hehehe";
+            // 
             // MainPage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.MenuHighlight;
-            this.ClientSize = new System.Drawing.Size(601, 450);
+            this.ClientSize = new System.Drawing.Size(601, 500);
             this.ControlBox = false;
+            this.Controls.Add(this.lblUnreadMessages);
             this.Controls.Add(this.tabMenu);
             this.Name = "MainPage";
             this.Text = "Form1";
@@ -196,6 +194,7 @@
             this.Search.ResumeLayout(false);
             this.Search.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -210,8 +209,8 @@
         private System.Windows.Forms.Label label1;
         public System.Windows.Forms.Button btnSearch;
         private System.Windows.Forms.TextBox txtSearchUserName;
-        public System.Windows.Forms.Button btnRefreshContacts;
         public System.Windows.Forms.Button btnStartChat;
         public System.Windows.Forms.Button btnLogOut;
+        public System.Windows.Forms.Label lblUnreadMessages;
     }
 }
