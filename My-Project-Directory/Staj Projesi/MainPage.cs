@@ -1,4 +1,4 @@
-﻿using FireSharp.Config;
+using FireSharp.Config;
 using FireSharp.Interfaces;
 using FireSharp.Response;
 using System;
@@ -8,6 +8,8 @@ namespace Staj_Projesi
 {
     public partial class MainPage : Form
     {
+        public int unreadMessages = 0;
+        public int unreadMessageRequests = 0;
         private User currentUser = new User();
         IFirebaseConfig config = new FirebaseConfig
         {
@@ -81,21 +83,12 @@ namespace Staj_Projesi
                 {
                     lstContacts.Items.Add(item);
                 }
-
+                unreadMessageRequests -= CurrentUser.findUnreadMessages(CurrentUser.Contacts[CurrentUser.Contacts.Count - 1]);
+                unreadMessages += CurrentUser.findUnreadMessages(CurrentUser.Contacts[CurrentUser.Contacts.Count - 1]);
+                updateUnreadMessageInfo();
             }
             else
                 MessageBox.Show("Select a valid user");
-        }
-
-        private async void BtnRefreshContacts_Click(object sender, EventArgs e)
-        {
-            FirebaseResponse response = await client.GetTaskAsync("User/" + CurrentUser.UserName);
-            CurrentUser = response.ResultAs<User>();
-            lstContacts.Items.Clear();
-            foreach (var item in CurrentUser.Contacts)
-            {
-                lstContacts.Items.Add(item);
-            }
         }
 
         private async void BtnStartChat_Click(object sender, EventArgs e)
@@ -103,27 +96,45 @@ namespace Staj_Projesi
             if (lstContacts.SelectedIndex >= 0 && lstContacts.SelectedIndex < lstContacts.Items.Count)
             {
                 FirebaseResponse response = new FirebaseResponse();
-                response = await client.GetTaskAsync("User/" + lstContacts.SelectedItem.ToString());
+                string userToStartChatWith;
+                if (lstContacts.SelectedItem.ToString().Contains("("))
+                {
+                    userToStartChatWith = lstContacts.SelectedItem.ToString().Substring(0, lstContacts.SelectedItem.ToString().LastIndexOf('('));
+
+                }
+                else
+                {
+                    userToStartChatWith = lstContacts.SelectedItem.ToString();
+                }
+                unreadMessages -= CurrentUser.findUnreadMessages(userToStartChatWith);
+                response = await client.GetTaskAsync("User/" + userToStartChatWith);
                 ChatPage chatPage = new ChatPage();
-                chatPage.CurrentUser = CurrentUser;
                 chatPage.TargetUser = response.ResultAs<User>();
                 chatPage.lstChat.Items.Clear();
                 foreach (var item in currentUser.Messages)
                 {
-                    if (item.Sender == chatPage.CurrentUser.UserName && item.Reciever == chatPage.TargetUser.UserName)
+                    if (item.Sender == currentUser.UserName && item.Reciever == chatPage.TargetUser.UserName)
                     {
                         string msg = item.Time + " - You: " + item.Text;
                         chatPage.lstChat.Items.Add(msg);
                     }
-                    else if (item.Sender == chatPage.TargetUser.UserName && item.Reciever == chatPage.CurrentUser.UserName)
+                    else if (item.Sender == chatPage.TargetUser.UserName && item.Reciever == currentUser.UserName)
                     {
+                        if (!item.isSeen)
+                        {
+                            item.isSeen = true;
+                            Console.WriteLine(1);
+                        }
 
                         string msg = item.Time + " - " + item.Sender + ": " + item.Text;
                         chatPage.lstChat.Items.Add(msg);
                     }
                 }
+                chatPage.CurrentUser = CurrentUser;
                 chatPage.timerToRefresh.Enabled = true;
                 chatPage.Text = "Chat with " + chatPage.TargetUser.Name;
+                lstContacts.Items[lstContacts.SelectedIndex] = chatPage.TargetUser.UserName;
+                updateUnreadMessageInfo();
                 chatPage.Show();
                 chatPage.MainPage = this;
             }
@@ -143,6 +154,31 @@ namespace Staj_Projesi
         {
 
             client = new FireSharp.FirebaseClient(config);
+        }
+        public void updateUnreadMessageInfo()
+        {
+            if (unreadMessages > 0 && unreadMessageRequests == 0)
+            {
+                lblUnreadMessages.Text = "You have " + unreadMessages + " unread messages.";
+                lblUnreadMessages.Font = new System.Drawing.Font(DefaultFont.FontFamily, DefaultFont.Size, System.Drawing.FontStyle.Bold);
+            }
+            else if (unreadMessageRequests > 0 && unreadMessages > 0)
+            {
+                lblUnreadMessages.Text = "You have " + unreadMessages + " unread messages and " + unreadMessageRequests + "message requests.";
+                lblUnreadMessages.Font = new System.Drawing.Font(DefaultFont.FontFamily, DefaultFont.Size, System.Drawing.FontStyle.Bold);
+
+            }
+            else if (unreadMessageRequests > 0 && unreadMessages == 0)
+            {
+                lblUnreadMessages.Text = "You have " + unreadMessageRequests + " unread message requests.";
+                lblUnreadMessages.Font = new System.Drawing.Font(DefaultFont.FontFamily, DefaultFont.Size, System.Drawing.FontStyle.Regular);
+
+            }
+            else
+            {
+                lblUnreadMessages.Text = "You have no unread messages";
+                lblUnreadMessages.Font = new System.Drawing.Font(DefaultFont.FontFamily, DefaultFont.Size, System.Drawing.FontStyle.Regular);
+            }
         }
     }
 }
