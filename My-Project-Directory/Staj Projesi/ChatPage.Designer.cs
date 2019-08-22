@@ -1,4 +1,4 @@
-﻿namespace Staj_Projesi
+namespace Staj_Projesi
 {
     partial class ChatPage
     {
