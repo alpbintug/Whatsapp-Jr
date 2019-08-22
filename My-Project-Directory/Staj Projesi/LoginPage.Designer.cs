@@ -1,4 +1,4 @@
-﻿namespace Staj_Projesi
+namespace Staj_Projesi
 {
     partial class LoginPage
     {
@@ -154,6 +154,7 @@
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(161, 261);
             this.tabControl1.TabIndex = 18;
+            this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.TabControl1_SelectedIndexChanged);
             // 
             // tabPage1
             // 
