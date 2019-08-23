@@ -120,9 +120,9 @@ namespace Staj_Projesi
                     }
                     else if (item.Sender == chatPage.TargetUser.UserName && item.Reciever == currentUser.UserName)
                     {
-                        if (!item.isSeen)
+                        if (!item.IsSeen)
                         {
-                            item.isSeen = true;
+                            item.IsSeen = true;
                             Console.WriteLine(1);
                         }
 
@@ -142,10 +142,9 @@ namespace Staj_Projesi
                 MessageBox.Show("Select a valid user");
         }
 
-        private async void BtnLogout_Click(object sender, EventArgs e)
+        private void BtnLogout_Click(object sender, EventArgs e)
         {
-            SetResponse response = await client.SetTaskAsync("User/" + CurrentUser.UserName, CurrentUser);
-            User result = response.ResultAs<User>();
+
             this.Close();
             login.Show();
         }
