@@ -77,10 +77,11 @@ namespace Staj_Projesi
                 int unreadMessageRequests = 0;
                 foreach (var item in mainPage.CurrentUser.Messages)
                 {
-                    if (item.Reciever == mainPage.CurrentUser.UserName && item.isSeen == false && mainPage.CurrentUser.Contacts.Contains(item.Sender))
+                    if (item.Reciever == mainPage.CurrentUser.UserName && !item.IsSeen && mainPage.CurrentUser.Contacts.Contains(item.Sender))
                         unreadMessages++;
-                    else if (item.Reciever == mainPage.CurrentUser.UserName && item.isSeen == false)
+                    else if (item.Reciever == mainPage.CurrentUser.UserName && !item.IsSeen)
                         unreadMessageRequests++;
+                    Console.WriteLine(unreadMessages + " " + item.IsSeen);
                 }
                 mainPage.unreadMessages = unreadMessages;
                 mainPage.unreadMessageRequests = unreadMessageRequests;
