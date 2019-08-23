@@ -38,7 +38,7 @@ namespace Staj_Projesi
             {
                 timerToRefresh.Stop();
                 string time = DateTime.Now.ToString();
-                Message message = new Message(CurrentUser.UserName, TargetUser.UserName, txtMessage.Text, time);
+                Message message = new Message(CurrentUser.UserName, TargetUser.UserName, txtMessage.Text, time,false);
                 System.Console.WriteLine(txtMessage.Text);
                 CurrentUser.Messages.Add(message);
                 TargetUser.Messages.Add(message);
@@ -89,17 +89,17 @@ namespace Staj_Projesi
                     else if (item.Sender == TargetUser.UserName && item.Reciever == CurrentUser.UserName && !lstChat.Items.Contains(item.Sender + ": " + item.Text))
                     {
                         lstChat.Items.Add(item.Time + " - " + item.Sender + ": " + item.Text);
+
                     }
                 }
             }
         }
 
-        private async void BtnQuit_Click(object sender, System.EventArgs e)
+        private void BtnQuit_Click(object sender, System.EventArgs e)
         {
             this.timerToRefresh.Stop();
             this.timerToRefresh.Dispose();
             mainPage.CurrentUser = CurrentUser;
-            await SaveCurrentUser();
             this.Hide();
         }
 
@@ -112,7 +112,7 @@ namespace Staj_Projesi
                 {
                     timerToRefresh.Stop();
 
-                    Message message = new Message(CurrentUser.UserName, TargetUser.UserName, txtMessage.Text, DateTime.Now.ToString());
+                    Message message = new Message(CurrentUser.UserName, TargetUser.UserName, txtMessage.Text, DateTime.Now.ToString(),false);
                     System.Console.WriteLine(txtMessage.Text);
                     CurrentUser.Messages.Add(message);
                     TargetUser.Messages.Add(message);
