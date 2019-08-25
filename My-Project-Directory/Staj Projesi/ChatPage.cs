@@ -4,6 +4,7 @@ using FireSharp.Response;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Tulpep.NotificationWindow;
 
 namespace Staj_Projesi
 {
@@ -38,7 +39,7 @@ namespace Staj_Projesi
             {
                 timerToRefresh.Stop();
                 string time = DateTime.Now.ToString();
-                Message message = new Message(CurrentUser.UserName, TargetUser.UserName, txtMessage.Text, time,false);
+                Message message = new Message(CurrentUser.UserName, TargetUser.UserName, txtMessage.Text, time, false);
                 System.Console.WriteLine(txtMessage.Text);
                 CurrentUser.Messages.Add(message);
                 TargetUser.Messages.Add(message);
@@ -73,12 +74,27 @@ namespace Staj_Projesi
             User responseAsUser = response.ResultAs<User>();
             if (CurrentUser.Messages.Count < responseAsUser.Messages.Count)
             {
+                var popupNotifier = new PopupNotifier();
+                popupNotifier.TitleText = "You have " + (responseAsUser.Messages.Count - CurrentUser.Messages.Count) + " new messages.";
+                string content = null;
+                foreach (var item in responseAsUser.Messages)
+                {
+                    if (!item.IsSeen && item.Sender != CurrentUser.UserName)
+                    {
+                        content += "-" + item.Sender + ": " + item.Text + "\n";
+                    }
+                }
+                popupNotifier.ContentText = content;
+                popupNotifier.IsRightToLeft = false;
+                popupNotifier.AnimationInterval = 5000;
+                popupNotifier.BodyColor = System.Drawing.Color.LightBlue;
+                popupNotifier.Popup();
                 //CurrentUser.Messages = response.ResultAs<User>().Messages;
                 for (int i = CurrentUser.Messages.Count; i < responseAsUser.Messages.Count; i++)
                 {
                     CurrentUser.Messages.Add(responseAsUser.Messages[i]);
                 }
-                //lstChat.Items.Clear();
+                lstChat.Items.Clear();
 
                 foreach (var item in CurrentUser.Messages)
                 {
@@ -112,7 +128,7 @@ namespace Staj_Projesi
                 {
                     timerToRefresh.Stop();
 
-                    Message message = new Message(CurrentUser.UserName, TargetUser.UserName, txtMessage.Text, DateTime.Now.ToString(),false);
+                    Message message = new Message(CurrentUser.UserName, TargetUser.UserName, txtMessage.Text, DateTime.Now.ToString(), false);
                     System.Console.WriteLine(txtMessage.Text);
                     CurrentUser.Messages.Add(message);
                     TargetUser.Messages.Add(message);
