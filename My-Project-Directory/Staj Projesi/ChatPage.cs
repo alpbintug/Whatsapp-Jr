@@ -82,7 +82,7 @@ namespace Staj_Projesi
                     if (!item.IsSeen && item.Sender != CurrentUser.UserName)
                     {
                         content += "-" + item.Sender + ": " + item.Text + "\n";
-                    }
+                    }//
                 }
                 popupNotifier.ContentText = content;
                 popupNotifier.IsRightToLeft = false;
