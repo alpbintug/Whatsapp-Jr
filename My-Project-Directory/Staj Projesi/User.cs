@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace Staj_Projesi
 {
@@ -34,6 +34,20 @@ namespace Staj_Projesi
         public override string ToString()
         {
             return name + " " + role;
+        }
+        public int findUnreadMessages(string Target)
+        {
+            int unread = 0;
+            if (!contacts.Contains(Target))
+            {
+                return -1;
+            }
+            foreach (var item in messages)
+            {
+                if (item.Sender == Target && item.IsSeen == false)
+                    unread++;
+            }
+            return unread;
         }
     }
 }
