@@ -3,6 +3,7 @@ using FireSharp.Interfaces;
 using FireSharp.Response;
 using System;
 using System.Windows.Forms;
+using Tulpep.NotificationWindow;
 
 namespace Staj_Projesi
 {
@@ -177,6 +178,41 @@ namespace Staj_Projesi
             {
                 lblUnreadMessages.Text = "You have no unread messages";
                 lblUnreadMessages.Font = new System.Drawing.Font(DefaultFont.FontFamily, DefaultFont.Size, System.Drawing.FontStyle.Regular);
+            }
+        }
+
+        private async void TimerRefresh_Tick(object sender, EventArgs e)
+        {
+            FirebaseResponse response = await client.GetTaskAsync("User/" + CurrentUser.UserName);
+            User responseAsUser = response.ResultAs<User>();
+            if (CurrentUser.Messages.Count < responseAsUser.Messages.Count)
+            {
+                var popupNotifier = new PopupNotifier();
+                if (responseAsUser.Messages.Count - CurrentUser.Messages.Count > 1)
+                    popupNotifier.TitleText = "You have " + (responseAsUser.Messages.Count - CurrentUser.Messages.Count) + " new messages.";
+                else
+                    popupNotifier.TitleText = "You have one unread message.";
+                string content = null;
+                foreach (var item in responseAsUser.Messages)
+                {
+                    if (!item.IsSeen && item.Sender != CurrentUser.UserName && CurrentUser.Contacts.Contains(item.Sender))
+                    {
+                        content += "-" + item.Sender + ": " + item.Text + "\n";
+                        unreadMessages++;
+                    }
+                }
+                popupNotifier.ContentText = content;
+                popupNotifier.IsRightToLeft = false;
+                popupNotifier.BodyColor = System.Drawing.Color.LightBlue;
+                popupNotifier.Popup();
+                for (int i = CurrentUser.Messages.Count; i < responseAsUser.Messages.Count; i++)
+                {
+                    CurrentUser.Messages.Add(responseAsUser.Messages[i]);
+                }
+                System.Media.SoundPlayer player = new System.Media.SoundPlayer(@"newmessage.wav");
+                player.Play();
+                updateUnreadMessageInfo();
+
             }
         }
     }
