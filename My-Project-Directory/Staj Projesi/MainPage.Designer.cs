@@ -28,6 +28,7 @@ namespace Staj_Projesi
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.tabMenu = new System.Windows.Forms.TabControl();
             this.Contacts = new System.Windows.Forms.TabPage();
             this.btnLogOut = new System.Windows.Forms.Button();
@@ -40,6 +41,7 @@ namespace Staj_Projesi
             this.btnSearch = new System.Windows.Forms.Button();
             this.txtSearchUserName = new System.Windows.Forms.TextBox();
             this.lblUnreadMessages = new System.Windows.Forms.Label();
+            this.timerRefresh = new System.Windows.Forms.Timer(this.components);
             this.tabMenu.SuspendLayout();
             this.Contacts.SuspendLayout();
             this.Search.SuspendLayout();
@@ -113,7 +115,7 @@ namespace Staj_Projesi
             this.Search.Location = new System.Drawing.Point(4, 25);
             this.Search.Name = "Search";
             this.Search.Padding = new System.Windows.Forms.Padding(3);
-            this.Search.Size = new System.Drawing.Size(569, 397);
+            this.Search.Size = new System.Drawing.Size(569, 430);
             this.Search.TabIndex = 2;
             this.Search.Text = "Search Users";
             // 
@@ -177,6 +179,12 @@ namespace Staj_Projesi
             this.lblUnreadMessages.TabIndex = 1;
             this.lblUnreadMessages.Text = "Hehehe";
             // 
+            // timerRefresh
+            // 
+            this.timerRefresh.Enabled = true;
+            this.timerRefresh.Interval = 5000;
+            this.timerRefresh.Tick += new System.EventHandler(this.TimerRefresh_Tick);
+            // 
             // MainPage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -212,5 +220,6 @@ namespace Staj_Projesi
         public System.Windows.Forms.Button btnStartChat;
         public System.Windows.Forms.Button btnLogOut;
         public System.Windows.Forms.Label lblUnreadMessages;
+        private System.Windows.Forms.Timer timerRefresh;
     }
 }
