@@ -15,8 +15,8 @@ namespace Staj_Projesi
         private MainPage mainPage;
         IFirebaseConfig config = new FirebaseConfig
         {
-            AuthSecret = "diN9IcACLUhTWXAa9UlhitSJPv11VddARqUnfWNa",
-            BasePath = "https://texting-d05e5.firebaseio.com/"
+            AuthSecret = "",//Enter your authSecret here
+            BasePath = ""//Enter your BasePath here
         };
         IFirebaseClient client;
 
@@ -40,7 +40,6 @@ namespace Staj_Projesi
                 timerToRefresh.Stop();
                 string time = DateTime.Now.ToString();
                 Message message = new Message(CurrentUser.UserName, TargetUser.UserName, txtMessage.Text, time, false);
-                System.Console.WriteLine(txtMessage.Text);
                 CurrentUser.Messages.Add(message);
                 TargetUser.Messages.Add(message);
                 string msgToAdd = message.Time + " - You: " + message.Text;
@@ -49,6 +48,9 @@ namespace Staj_Projesi
                 await SaveCurrentUser();
                 await SaveTargetUser();
                 timerToRefresh.Start();
+                txtMessage.Enabled = false;
+                System.Threading.Thread.Sleep(1000);
+                txtMessage.Enabled = true;
             }
         }
         public async Task SaveCurrentUser()
@@ -63,6 +65,7 @@ namespace Staj_Projesi
         }
         private void ChatPage_Load(object sender, System.EventArgs e)
         {
+            this.MinimumSize = this.Size;
             client = new FireSharp.FirebaseClient(config);
 
         }
@@ -75,21 +78,24 @@ namespace Staj_Projesi
             if (CurrentUser.Messages.Count < responseAsUser.Messages.Count)
             {
                 var popupNotifier = new PopupNotifier();
-                popupNotifier.TitleText = "You have " + (responseAsUser.Messages.Count - CurrentUser.Messages.Count) + " new messages.";
+                if (responseAsUser.Messages.Count - CurrentUser.Messages.Count > 1)
+                    popupNotifier.TitleText = "You have " + (responseAsUser.Messages.Count - CurrentUser.Messages.Count) + " new messages.";
+                else
+                    popupNotifier.TitleText = "You have one new message.";
                 string content = null;
-                foreach (var item in responseAsUser.Messages)
+                for (int i = 0; i < CurrentUser.Messages.Count; i++)
                 {
-                    if (!item.IsSeen && item.Sender != CurrentUser.UserName)
+                    if (CurrentUser.Messages[i].Sender != CurrentUser.UserName && i > mainPage.lastNotificationMessageIndex)
                     {
-                        content += "-" + item.Sender + ": " + item.Text + "\n";
-                    }//
+                        mainPage.lastNotificationMessageIndex = i;
+                        content += "-" + CurrentUser.Messages[i].Sender + ": " + CurrentUser.Messages[i].Text + "\n";
+                        CurrentUser.Messages[i].IsSeen = true;
+                    }
                 }
                 popupNotifier.ContentText = content;
                 popupNotifier.IsRightToLeft = false;
-                popupNotifier.AnimationInterval = 5000;
                 popupNotifier.BodyColor = System.Drawing.Color.LightBlue;
                 popupNotifier.Popup();
-                //CurrentUser.Messages = response.ResultAs<User>().Messages;
                 for (int i = CurrentUser.Messages.Count; i < responseAsUser.Messages.Count; i++)
                 {
                     CurrentUser.Messages.Add(responseAsUser.Messages[i]);
@@ -105,6 +111,7 @@ namespace Staj_Projesi
                     else if (item.Sender == TargetUser.UserName && item.Reciever == CurrentUser.UserName && !lstChat.Items.Contains(item.Sender + ": " + item.Text))
                     {
                         lstChat.Items.Add(item.Time + " - " + item.Sender + ": " + item.Text);
+                        item.IsSeen = true;
 
                     }
                 }
@@ -129,15 +136,17 @@ namespace Staj_Projesi
                     timerToRefresh.Stop();
 
                     Message message = new Message(CurrentUser.UserName, TargetUser.UserName, txtMessage.Text, DateTime.Now.ToString(), false);
-                    System.Console.WriteLine(txtMessage.Text);
                     CurrentUser.Messages.Add(message);
                     TargetUser.Messages.Add(message);
                     string msgToAdd = message.Time + " - You: " + message.Text;
                     lstChat.Items.Add(msgToAdd);
                     txtMessage.Text = "";
+                    //txtMessage.Enabled = false;
                     await SaveCurrentUser();
                     await SaveTargetUser();
                     timerToRefresh.Start();
+                    System.Threading.Thread.Sleep(1000);
+                    //txtMessage.Enabled = true;
                 }
             }
         }
