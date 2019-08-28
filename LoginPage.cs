@@ -3,8 +3,9 @@ using FireSharp.Interfaces;
 using FireSharp.Response;
 using System;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
-namespace $safeprojectname$
+namespace Staj_Projesi
 {
     public partial class LoginPage : Form
     {
@@ -19,18 +20,20 @@ namespace $safeprojectname$
         public LoginPage()
         {
             InitializeComponent();
+            txtUserName.Select();
         }
 
         private async void BtnLogIn_Click(object sender, EventArgs e)
         {
+            Regex Rgx = new Regex(@"^\w*$");
+            if (!Rgx.IsMatch(txtUserName.Text))
+            {
+                MessageBox.Show("Username cannot contain special characters.");
+                return;
+            }
             if (txtUserName.TextLength == 0 || txtPassword.TextLength == 0)
             {
                 MessageBox.Show("Username or password area cannot be empty!");
-                return;
-            }
-            if (txtUserName.Text.Contains("."))
-            {
-                MessageBox.Show("Username cannot contain '.' character");
                 return;
             }
             FirebaseResponse response = new FirebaseResponse();
@@ -62,9 +65,33 @@ namespace $safeprojectname$
                 mainPage.lstContacts.Items.Clear();
                 foreach (var item in getUser.Contacts)
                 {
-                    mainPage.lstContacts.Items.Add(item);
+                    int unread = mainPage.CurrentUser.findUnreadMessages(item);
+                    if (unread > 0)
+                    {
+                        mainPage.lstContacts.Items.Add(item + "(" + unread + " Unread Messsages)");
+
+                    }
+                    else
+                        mainPage.lstContacts.Items.Add(item);
+                }
+                foreach (var item in getUser.ContactRequests)
+                {
+                    mainPage.lstContactRequests.Items.Add(item);
                 }
                 mainPage.login = this;
+                int unreadMessages = 0;
+                int unreadMessageRequests = 0;
+                foreach (var item in mainPage.CurrentUser.Messages)
+                {
+                    if (item.Reciever == mainPage.CurrentUser.UserName && !item.IsSeen && mainPage.CurrentUser.Contacts.Contains(item.Sender))
+                        unreadMessages++;
+                    else if (item.Reciever == mainPage.CurrentUser.UserName && !item.IsSeen)
+                        unreadMessageRequests++;
+                    Console.WriteLine(unreadMessages + " " + item.IsSeen);
+                }
+                mainPage.unreadMessages = unreadMessages;
+                mainPage.unreadMessageRequests = unreadMessageRequests;
+                mainPage.updateUnreadMessageInfo();
                 mainPage.Show();
             }
         }
@@ -76,7 +103,14 @@ namespace $safeprojectname$
 
         private void LoginPage_Load(object sender, EventArgs e)
         {
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
             client = new FireSharp.FirebaseClient(config);
+            Console.WriteLine(client);
+            if (client == null)
+            {
+                MessageBox.Show("Cannot connect to server.");
+                this.Close();
+            }
 
         }
 
@@ -88,21 +122,16 @@ namespace $safeprojectname$
 
         private async void BtnSignUp_Click(object sender, EventArgs e)
         {
-            if (txtAddUserName.Text.Contains("."))
+            Regex Rgx = new Regex(@"^\w*$");
+            if (!Rgx.IsMatch(txtUserName.Text))
             {
-                MessageBox.Show("Username cannot contain '.' character.");
+                MessageBox.Show("Username cannot contain special characters.");
                 return;
             }
             string name = txtAddName.Text;
             if (name.Length == 0)
             {
                 MessageBox.Show("You must enter a name!");
-                return;
-            }
-            string role = txtAddRole.Text;
-            if (role.Length == 0)
-            {
-                MessageBox.Show("You must enter a role!");
                 return;
             }
             string userName = txtAddUserName.Text;
@@ -141,10 +170,10 @@ namespace $safeprojectname$
                 MessageBox.Show("Password cannot contain your user name!");
                 return;
             }
-            Console.WriteLine(userName + " " + password + " " + name + " " + role);
-            if (name.Length != 0 && role.Length != 0 && password.Length != 0 && userName.Length != 0)
+            Console.WriteLine(userName + " " + password + " " + name);
+            if (name.Length != 0 && password.Length != 0 && userName.Length != 0)
             {
-                User userToAdd = new User(name, role, userName, password);
+                User userToAdd = new User(name, userName, password);
                 SetResponse response = await client.SetTaskAsync("User/" + userToAdd.UserName, userToAdd);
                 User result = response.ResultAs<User>();
             }
@@ -153,15 +182,21 @@ namespace $safeprojectname$
                 MessageBox.Show("Wrong Entry");
             }
             txtAddName.Text = "";
-            txtAddRole.Text = "";
             txtAddUserName.Text = "";
             txtAddPassword.Text = "";
 
         }
 
-
-
-
-
+        private void TabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tabControl1.SelectedIndex == 0)
+            {
+                txtUserName.Select();
+            }
+            else
+            {
+                txtAddUserName.Select();
+            }
+        }
     }
 }
