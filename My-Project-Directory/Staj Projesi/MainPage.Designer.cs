@@ -31,6 +31,7 @@ namespace Staj_Projesi
             this.components = new System.ComponentModel.Container();
             this.tabMenu = new System.Windows.Forms.TabControl();
             this.Contacts = new System.Windows.Forms.TabPage();
+            this.btnRemoveContact = new System.Windows.Forms.Button();
             this.btnLogOut = new System.Windows.Forms.Button();
             this.btnStartChat = new System.Windows.Forms.Button();
             this.lstContacts = new System.Windows.Forms.ListBox();
@@ -40,17 +41,23 @@ namespace Staj_Projesi
             this.label1 = new System.Windows.Forms.Label();
             this.btnSearch = new System.Windows.Forms.Button();
             this.txtSearchUserName = new System.Windows.Forms.TextBox();
+            this.tabContactRequests = new System.Windows.Forms.TabPage();
+            this.btnRemoveRequest = new System.Windows.Forms.Button();
+            this.btnAcceptContactRequest = new System.Windows.Forms.Button();
+            this.lstContactRequests = new System.Windows.Forms.ListBox();
             this.lblUnreadMessages = new System.Windows.Forms.Label();
             this.timerRefresh = new System.Windows.Forms.Timer(this.components);
             this.tabMenu.SuspendLayout();
             this.Contacts.SuspendLayout();
             this.Search.SuspendLayout();
+            this.tabContactRequests.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabMenu
             // 
             this.tabMenu.Controls.Add(this.Contacts);
             this.tabMenu.Controls.Add(this.Search);
+            this.tabMenu.Controls.Add(this.tabContactRequests);
             this.tabMenu.Location = new System.Drawing.Point(12, 29);
             this.tabMenu.Name = "tabMenu";
             this.tabMenu.SelectedIndex = 0;
@@ -61,6 +68,7 @@ namespace Staj_Projesi
             // Contacts
             // 
             this.Contacts.BackColor = System.Drawing.Color.RoyalBlue;
+            this.Contacts.Controls.Add(this.btnRemoveContact);
             this.Contacts.Controls.Add(this.btnLogOut);
             this.Contacts.Controls.Add(this.btnStartChat);
             this.Contacts.Controls.Add(this.lstContacts);
@@ -70,6 +78,18 @@ namespace Staj_Projesi
             this.Contacts.Size = new System.Drawing.Size(569, 430);
             this.Contacts.TabIndex = 1;
             this.Contacts.Text = "Contacts";
+            // 
+            // btnRemoveContact
+            // 
+            this.btnRemoveContact.BackColor = System.Drawing.Color.DarkBlue;
+            this.btnRemoveContact.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.btnRemoveContact.Location = new System.Drawing.Point(453, 305);
+            this.btnRemoveContact.Name = "btnRemoveContact";
+            this.btnRemoveContact.Size = new System.Drawing.Size(110, 50);
+            this.btnRemoveContact.TabIndex = 4;
+            this.btnRemoveContact.Text = "Remove Contact";
+            this.btnRemoveContact.UseVisualStyleBackColor = false;
+            this.btnRemoveContact.Click += new System.EventHandler(this.BtnRemoveContact_Click);
             // 
             // btnLogOut
             // 
@@ -169,6 +189,52 @@ namespace Staj_Projesi
             this.txtSearchUserName.Size = new System.Drawing.Size(191, 22);
             this.txtSearchUserName.TabIndex = 0;
             // 
+            // tabContactRequests
+            // 
+            this.tabContactRequests.BackColor = System.Drawing.Color.RoyalBlue;
+            this.tabContactRequests.Controls.Add(this.btnRemoveRequest);
+            this.tabContactRequests.Controls.Add(this.btnAcceptContactRequest);
+            this.tabContactRequests.Controls.Add(this.lstContactRequests);
+            this.tabContactRequests.Location = new System.Drawing.Point(4, 25);
+            this.tabContactRequests.Name = "tabContactRequests";
+            this.tabContactRequests.Padding = new System.Windows.Forms.Padding(3);
+            this.tabContactRequests.Size = new System.Drawing.Size(569, 430);
+            this.tabContactRequests.TabIndex = 3;
+            this.tabContactRequests.Text = "Contact Requests";
+            // 
+            // btnRemoveRequest
+            // 
+            this.btnRemoveRequest.BackColor = System.Drawing.Color.DarkBlue;
+            this.btnRemoveRequest.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.btnRemoveRequest.Location = new System.Drawing.Point(462, 68);
+            this.btnRemoveRequest.Name = "btnRemoveRequest";
+            this.btnRemoveRequest.Size = new System.Drawing.Size(101, 49);
+            this.btnRemoveRequest.TabIndex = 2;
+            this.btnRemoveRequest.Text = "Remove Request";
+            this.btnRemoveRequest.UseVisualStyleBackColor = false;
+            this.btnRemoveRequest.Click += new System.EventHandler(this.BtnRemoveRequest_Click);
+            // 
+            // btnAcceptContactRequest
+            // 
+            this.btnAcceptContactRequest.BackColor = System.Drawing.Color.DarkBlue;
+            this.btnAcceptContactRequest.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.btnAcceptContactRequest.Location = new System.Drawing.Point(462, 6);
+            this.btnAcceptContactRequest.Name = "btnAcceptContactRequest";
+            this.btnAcceptContactRequest.Size = new System.Drawing.Size(101, 49);
+            this.btnAcceptContactRequest.TabIndex = 1;
+            this.btnAcceptContactRequest.Text = "Accept Request";
+            this.btnAcceptContactRequest.UseVisualStyleBackColor = false;
+            this.btnAcceptContactRequest.Click += new System.EventHandler(this.BtnAcceptContactRequest_Click);
+            // 
+            // lstContactRequests
+            // 
+            this.lstContactRequests.FormattingEnabled = true;
+            this.lstContactRequests.ItemHeight = 16;
+            this.lstContactRequests.Location = new System.Drawing.Point(6, 6);
+            this.lstContactRequests.Name = "lstContactRequests";
+            this.lstContactRequests.Size = new System.Drawing.Size(450, 420);
+            this.lstContactRequests.TabIndex = 0;
+            // 
             // lblUnreadMessages
             // 
             this.lblUnreadMessages.AutoSize = true;
@@ -201,6 +267,7 @@ namespace Staj_Projesi
             this.Contacts.ResumeLayout(false);
             this.Search.ResumeLayout(false);
             this.Search.PerformLayout();
+            this.tabContactRequests.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -221,5 +288,10 @@ namespace Staj_Projesi
         public System.Windows.Forms.Button btnLogOut;
         public System.Windows.Forms.Label lblUnreadMessages;
         private System.Windows.Forms.Timer timerRefresh;
+        private System.Windows.Forms.TabPage tabContactRequests;
+        private System.Windows.Forms.Button btnRemoveRequest;
+        private System.Windows.Forms.Button btnAcceptContactRequest;
+        public System.Windows.Forms.ListBox lstContactRequests;
+        private System.Windows.Forms.Button btnRemoveContact;
     }
 }
