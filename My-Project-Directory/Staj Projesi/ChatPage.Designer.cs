@@ -38,6 +38,8 @@ namespace Staj_Projesi
             // 
             // txtMessage
             // 
+            this.txtMessage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtMessage.Location = new System.Drawing.Point(12, 423);
             this.txtMessage.Multiline = true;
             this.txtMessage.Name = "txtMessage";
@@ -48,6 +50,8 @@ namespace Staj_Projesi
             // 
             // btnSendMessage
             // 
+            this.btnSendMessage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSendMessage.Location = new System.Drawing.Point(439, 423);
             this.btnSendMessage.Name = "btnSendMessage";
             this.btnSendMessage.Size = new System.Drawing.Size(58, 23);
@@ -63,6 +67,8 @@ namespace Staj_Projesi
             // 
             // btnQuit
             // 
+            this.btnQuit.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.btnQuit.Location = new System.Drawing.Point(503, 423);
             this.btnQuit.Name = "btnQuit";
             this.btnQuit.Size = new System.Drawing.Size(66, 23);
@@ -73,6 +79,9 @@ namespace Staj_Projesi
             // 
             // lstChat
             // 
+            this.lstChat.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.lstChat.FormattingEnabled = true;
             this.lstChat.ItemHeight = 16;
             this.lstChat.Location = new System.Drawing.Point(12, 12);
