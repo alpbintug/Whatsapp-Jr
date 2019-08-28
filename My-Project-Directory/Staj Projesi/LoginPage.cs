@@ -2,6 +2,7 @@ using FireSharp.Config;
 using FireSharp.Interfaces;
 using FireSharp.Response;
 using System;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace Staj_Projesi
@@ -10,8 +11,8 @@ namespace Staj_Projesi
     {
         IFirebaseConfig config = new FirebaseConfig
         {
-            AuthSecret = "diN9IcACLUhTWXAa9UlhitSJPv11VddARqUnfWNa",
-            BasePath = "https://texting-d05e5.firebaseio.com/"
+            AuthSecret = "", //Enter your AuthSecret here
+            BasePath = "" //Enter your BasePath here
         };
         IFirebaseClient client;
         public object Application { get; internal set; }
@@ -24,14 +25,15 @@ namespace Staj_Projesi
 
         private async void BtnLogIn_Click(object sender, EventArgs e)
         {
+            Regex Rgx = new Regex(@"^\w*$");
+            if (!Rgx.IsMatch(txtUserName.Text))
+            {
+                MessageBox.Show("Username cannot contain special characters.");
+                return;
+            }
             if (txtUserName.TextLength == 0 || txtPassword.TextLength == 0)
             {
                 MessageBox.Show("Username or password area cannot be empty!");
-                return;
-            }
-            if (txtUserName.Text.Contains("."))
-            {
-                MessageBox.Show("Username cannot contain '.' character");
                 return;
             }
             FirebaseResponse response = new FirebaseResponse();
@@ -52,7 +54,6 @@ namespace Staj_Projesi
                 getUser.Contacts = response.ResultAs<User>().Contacts;
                 if (getUser.Password != txtPassword.Text)
                 {
-                    Console.WriteLine(getUser.Password + " - " + txtPassword.Text);
                     MessageBox.Show("Wrong password!");
                     return;
                 }
@@ -72,6 +73,10 @@ namespace Staj_Projesi
                     else
                         mainPage.lstContacts.Items.Add(item);
                 }
+                foreach (var item in getUser.ContactRequests)
+                {
+                    mainPage.lstContactRequests.Items.Add(item);
+                }
                 mainPage.login = this;
                 int unreadMessages = 0;
                 int unreadMessageRequests = 0;
@@ -81,7 +86,6 @@ namespace Staj_Projesi
                         unreadMessages++;
                     else if (item.Reciever == mainPage.CurrentUser.UserName && !item.IsSeen)
                         unreadMessageRequests++;
-                    Console.WriteLine(unreadMessages + " " + item.IsSeen);
                 }
                 mainPage.unreadMessages = unreadMessages;
                 mainPage.unreadMessageRequests = unreadMessageRequests;
@@ -97,8 +101,8 @@ namespace Staj_Projesi
 
         private void LoginPage_Load(object sender, EventArgs e)
         {
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
             client = new FireSharp.FirebaseClient(config);
-            Console.WriteLine(client);
             if (client == null)
             {
                 MessageBox.Show("Cannot connect to server.");
@@ -115,21 +119,16 @@ namespace Staj_Projesi
 
         private async void BtnSignUp_Click(object sender, EventArgs e)
         {
-            if (txtAddUserName.Text.Contains("."))
+            Regex Rgx = new Regex(@"^\w*$");
+            if (!Rgx.IsMatch(txtUserName.Text))
             {
-                MessageBox.Show("Username cannot contain '.' character.");
+                MessageBox.Show("Username cannot contain special characters.");
                 return;
             }
             string name = txtAddName.Text;
             if (name.Length == 0)
             {
                 MessageBox.Show("You must enter a name!");
-                return;
-            }
-            string role = txtAddRole.Text;
-            if (role.Length == 0)
-            {
-                MessageBox.Show("You must enter a role!");
                 return;
             }
             string userName = txtAddUserName.Text;
@@ -168,10 +167,9 @@ namespace Staj_Projesi
                 MessageBox.Show("Password cannot contain your user name!");
                 return;
             }
-            Console.WriteLine(userName + " " + password + " " + name + " " + role);
-            if (name.Length != 0 && role.Length != 0 && password.Length != 0 && userName.Length != 0)
+            if (name.Length != 0 && password.Length != 0 && userName.Length != 0)
             {
-                User userToAdd = new User(name, role, userName, password);
+                User userToAdd = new User(name, userName, password);
                 SetResponse response = await client.SetTaskAsync("User/" + userToAdd.UserName, userToAdd);
                 User result = response.ResultAs<User>();
             }
@@ -180,7 +178,6 @@ namespace Staj_Projesi
                 MessageBox.Show("Wrong Entry");
             }
             txtAddName.Text = "";
-            txtAddRole.Text = "";
             txtAddUserName.Text = "";
             txtAddPassword.Text = "";
 
