@@ -2,7 +2,7 @@ using System;
 using System.Windows.Forms;
 
 
-namespace $safeprojectname$
+namespace Staj_Projesi
 {
 
     class Program
