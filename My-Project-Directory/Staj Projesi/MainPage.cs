@@ -2,6 +2,7 @@ using FireSharp.Config;
 using FireSharp.Interfaces;
 using FireSharp.Response;
 using System;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Tulpep.NotificationWindow;
 
@@ -11,11 +12,12 @@ namespace Staj_Projesi
     {
         public int unreadMessages = 0;
         public int unreadMessageRequests = 0;
+        public int lastNotificationMessageIndex = -1;
         private User currentUser = new User();
         IFirebaseConfig config = new FirebaseConfig
         {
-            AuthSecret = "diN9IcACLUhTWXAa9UlhitSJPv11VddARqUnfWNa",
-            BasePath = "https://texting-d05e5.firebaseio.com/"
+            AuthSecret = "",//Enter your AuthSecret here
+            BasePath = "" //Enter your BasePath here
         };
         IFirebaseClient client;
         public LoginPage login = new LoginPage();
@@ -28,9 +30,10 @@ namespace Staj_Projesi
 
         private async void BtnSearch_Click(object sender, EventArgs e)
         {
-            if (txtSearchUserName.Text.Contains("."))
+            Regex Rgx = new Regex(@"^\w*$");
+            if (!Rgx.IsMatch(txtSearchUserName.Text))
             {
-                MessageBox.Show("Username cannot contain '.' character.");
+                MessageBox.Show("Username cannot contain special characters.");
                 return;
             }
             if (txtSearchUserName.TextLength != 0)
@@ -66,18 +69,18 @@ namespace Staj_Projesi
             {
                 FirebaseResponse response = new FirebaseResponse();
                 response = await client.GetTaskAsync("User/" + lstSearchUsers.SelectedItem.ToString());
+                User user = response.ResultAs<User>();
                 foreach (var item in CurrentUser.Contacts)
                 {
-                    if (item == response.ResultAs<User>().UserName)
+                    if (item == user.UserName)
                         return;
                 }
 
-
-                CurrentUser.Contacts.Add(response.ResultAs<User>().UserName);
-                response.ResultAs<User>().Contacts.Add(CurrentUser.UserName);
+                CurrentUser.Contacts.Add(user.UserName);
+                user.ContactRequests.Add(CurrentUser.UserName);
                 SetResponse response1 = await client.SetTaskAsync("User/" + currentUser.UserName, currentUser);
-                SetResponse response2 = await client.SetTaskAsync("User/" + response.ResultAs<User>().UserName, response.ResultAs<User>());
                 User result = response1.ResultAs<User>();
+                SetResponse response2 = await client.SetTaskAsync("User/" + user.UserName, user);
                 User result1 = response2.ResultAs<User>();
                 lstContacts.Items.Clear();
                 foreach (var item in CurrentUser.Contacts)
@@ -124,13 +127,13 @@ namespace Staj_Projesi
                         if (!item.IsSeen)
                         {
                             item.IsSeen = true;
-                            Console.WriteLine(1);
                         }
 
                         string msg = item.Time + " - " + item.Sender + ": " + item.Text;
                         chatPage.lstChat.Items.Add(msg);
                     }
                 }
+                FirebaseResponse response1 = await client.SetTaskAsync("User/" + CurrentUser.UserName, CurrentUser);
                 chatPage.CurrentUser = CurrentUser;
                 chatPage.timerToRefresh.Enabled = true;
                 chatPage.Text = "Chat with " + chatPage.TargetUser.Name;
@@ -152,7 +155,7 @@ namespace Staj_Projesi
 
         private void MainPage_Load(object sender, EventArgs e)
         {
-
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
             client = new FireSharp.FirebaseClient(config);
         }
         public void updateUnreadMessageInfo()
@@ -183,6 +186,8 @@ namespace Staj_Projesi
 
         private async void TimerRefresh_Tick(object sender, EventArgs e)
         {
+            unreadMessages = 0;
+            unreadMessageRequests = 0;
             FirebaseResponse response = await client.GetTaskAsync("User/" + CurrentUser.UserName);
             User responseAsUser = response.ResultAs<User>();
             if (CurrentUser.Messages.Count < responseAsUser.Messages.Count)
@@ -193,12 +198,20 @@ namespace Staj_Projesi
                 else
                     popupNotifier.TitleText = "You have one unread message.";
                 string content = null;
-                foreach (var item in responseAsUser.Messages)
+                for (int i = 0; i < responseAsUser.Messages.Count; i++)
                 {
-                    if (!item.IsSeen && item.Sender != CurrentUser.UserName && CurrentUser.Contacts.Contains(item.Sender))
+                    if (!responseAsUser.Messages[i].IsSeen && responseAsUser.Messages[i].Sender != CurrentUser.UserName && CurrentUser.Contacts.Contains(responseAsUser.Messages[i].Sender))
                     {
-                        content += "-" + item.Sender + ": " + item.Text + "\n";
+                        if (i > lastNotificationMessageIndex)
+                        {
+                            lastNotificationMessageIndex = i;
+                            content += "-" + responseAsUser.Messages[i].Sender + ": " + responseAsUser.Messages[i].Text + "\n";
+                        }
                         unreadMessages++;
+                    }
+                    else if (!responseAsUser.Messages[i].IsSeen && responseAsUser.Messages[i].Sender != CurrentUser.UserName && !CurrentUser.Contacts.Contains(responseAsUser.Messages[i].Sender))
+                    {
+                        unreadMessageRequests++;
                     }
                 }
                 popupNotifier.ContentText = content;
@@ -212,6 +225,51 @@ namespace Staj_Projesi
                 System.Media.SoundPlayer player = new System.Media.SoundPlayer(@"newmessage.wav");
                 player.Play();
                 updateUnreadMessageInfo();
+
+            }
+        }
+
+        private async void BtnAcceptContactRequest_Click(object sender, EventArgs e)
+        {
+            if (lstContactRequests.SelectedIndex >= 0 && lstContactRequests.SelectedIndex < lstContactRequests.Items.Count)
+            {
+                CurrentUser.Contacts.Add(lstContactRequests.SelectedItem.ToString());
+                lstContacts.Items.Add(lstContactRequests.SelectedItem.ToString());
+                foreach (var item in CurrentUser.Messages)
+                {
+                    if (item.Sender == lstContactRequests.SelectedItem.ToString())
+                    {
+                        unreadMessageRequests--;
+                        unreadMessages++;
+                        updateUnreadMessageInfo();
+                    }
+                }
+                SetResponse response1 = await client.SetTaskAsync("User/" + CurrentUser.UserName, CurrentUser);
+            }
+            else
+                MessageBox.Show("Select a valid item from the list");
+        }
+
+        private async void BtnRemoveRequest_Click(object sender, EventArgs e)
+        {
+            if (lstContactRequests.SelectedIndex >= 0 && lstContactRequests.SelectedIndex < lstContactRequests.Items.Count)
+            {
+                CurrentUser.ContactRequests.Remove(lstContactRequests.SelectedItem.ToString());
+                lstContactRequests.Items.Remove(lstContactRequests.SelectedItem);
+                SetResponse response1 = await client.SetTaskAsync("User/" + CurrentUser.UserName, CurrentUser);
+            }
+            else
+                MessageBox.Show("Select a valid item from the list");
+        }
+
+        private async void BtnRemoveContact_Click(object sender, EventArgs e)
+        {
+
+            if (lstContacts.SelectedIndex >= 0 && lstContacts.SelectedIndex < lstContacts.Items.Count)
+            {
+                CurrentUser.Contacts.Remove(lstContacts.SelectedItem.ToString());
+                lstContacts.Items.Remove(lstContacts.SelectedItem);
+                SetResponse response = await client.SetTaskAsync("User/" + CurrentUser.UserName, CurrentUser);
 
             }
         }
