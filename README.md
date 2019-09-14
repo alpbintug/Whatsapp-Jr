@@ -14,3 +14,10 @@ When you get into Main Page, you can search for users, find them and send them a
 You will get a popup notication in your screen whenever you get a new message. If you don't have any open chat pages, you will also hear a "new message sound".
 
 Also, you can delete any contact from your list, if you do so, they won't be able to send any more contact requests.
+
+
+### How does it work
+
+Whatsapp Jr. uses the [Firebase database](https://firebase.google.com/) to store the messages sent from the user. When you send a contact request or a message, it updates your and the target users' info in the database, every few seconds, program updates your info from the Firabase, therefore you can see your new messages and contact requests.
+
+Whenever you get a new message from a user, you get a new notification which shows few unread messages and who sent you those messages. To do so, I used Tulpep Notifications.
